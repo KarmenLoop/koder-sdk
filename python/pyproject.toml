@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "koder-sdk"
+version = "0.1.0"
+description = "Call Koder from Python. The KARMEN LOOP kernel is not in this repository."
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = []
+
+[tool.setuptools]
+packages = ["koder_sdk"]
+
+[tool.setuptools.package-data]
+koder_sdk = ["py.typed"]
