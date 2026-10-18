@@ -2,7 +2,7 @@
 //   node examples/quickstart.mjs /path/to/project "Explain what this project does"
 import { query } from "../dist/index.mjs";
 
-const [workspace = process.cwd(), prompt = "用三句话说明这个项目是做什么的"] = process.argv.slice(2);
+const [workspace = process.cwd(), prompt = "Explain what this project does in three sentences."] = process.argv.slice(2);
 
 const run = query({
   workspace,

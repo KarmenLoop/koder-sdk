@@ -98,6 +98,65 @@ pip install ./python
 
 `KODER_NODE` selects the Node binary. `KODER_SDK_SERVER` selects `bin/koder-sdk-server.mjs` when it is not next to the Python package. `KODER_CLI_ROOT` selects the CLI checkout when it is not installed beside this repository.
 
+## Tutorial: the terminal
+
+Open a project and start a conversation:
+
+```bash
+cd /path/to/project
+koder
+```
+
+Type the task and press Enter. Koder reads and writes only inside that folder. Inside the conversation, `/help` lists commands, `/setup` opens settings, `/lang en` switches the interface to English, and `/exit` or Ctrl+D quits.
+
+One task without entering the conversation:
+
+```bash
+koder run "The npm test run failed. Fix total() in cart.mjs"
+```
+
+File edits and commands ask first. `y` accepts. Any other key rejects. A rejected edit is not written. In a script, `--yes` accepts edits and commands. It does not answer a multiple-choice question, and it does not type a password. Without `--yes`, edits and commands are refused.
+
+```bash
+koder run --yes --json "Add the install steps to the README"
+```
+
+`--json` prints one event per line.
+
+Read-only questions, review, repair, and tests:
+
+```bash
+koder ask "Which file starts the login flow?"
+koder review --base origin/main --format markdown --out review.md
+koder fix --check "npm test"
+koder test src/price.js --check "npm test"
+```
+
+`review` reads the diff, the repository layout, rule files such as `AGENTS.md`, and recent commits. It writes each finding with a file, a line, a severity, and a suggested change. `fix` runs the check, hands the failure to Koder, and runs the check again until it passes or the attempt limit is used. The default limit is 3.
+
+Flows, CI, chat apps, and editors:
+
+```bash
+koder learn
+koder flow init pr-gate
+koder ci init
+koder gateway setup feishu
+koder editor zed
+```
+
+`koder ci init` writes `.github/workflows/koder.yml`. A pull request is reviewed and commented on when it opens or updates. A comment of `/koder review` or `/koder fix` runs that action. Instructions that change the repository are accepted only from repository members. `koder editor` accepts `zed`, `nvim`, or `emacs` and prints that editor's configuration.
+
+The full-screen terminal:
+
+```bash
+cd /path/to/project
+koder-tui
+```
+
+Enter sends. Ctrl+J inserts a newline. `/` opens the command list: `/help`, `/learn`, `/lang`, `/mode`, `/yes`, `/model`, `/sidebar`, `/about`, `/exit`. Esc stops the current turn. Edits already accepted stay on disk. The TUI reads the model saved by `koder setup`.
+
+Common flags: `-w` sets the workspace, `-y` accepts edits and commands, `--json` prints events, `--mode` is `standard`, `code`, `minimal`, `plan`, `execute`, `report`, or `enhance`, `--lang` selects Chinese or English for that run, and `--no-color` turns color off. `koder help` and `koder help <command>` print the rest.
+
 ## Tutorial: one call from JavaScript
 
 ```js

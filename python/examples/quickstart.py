@@ -24,7 +24,7 @@ def ask(request):
 
 async def main():
     workspace = sys.argv[1] if len(sys.argv) > 1 else "."
-    prompt = sys.argv[2] if len(sys.argv) > 2 else "用三句话说明这个项目是做什么的"
+    prompt = sys.argv[2] if len(sys.argv) > 2 else "Explain what this project does in three sentences."
     run = query(prompt, workspace, permission=ask)
     async for event in run:
         if event["type"] == "delta":
