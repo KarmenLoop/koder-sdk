@@ -1,8 +1,8 @@
-# Koder
+# Koder SDK
 
-Koder does the work on your computer. You name a task. It reads the project, shows the change, and waits. Nothing is written, and no command runs, until you say yes.
+Use Koder from TypeScript, JavaScript, or Python. Send a task, stream the response, or keep a session open across several requests. Your code can approve or reject proposed edits and commands.
 
-Built by KARMEN. You bring the model account. Koder does not sell you one, and this release does not ship a model inside the box.
+The SDK uses the Koder CLI and the model you configure. Start by getting the CLI working, then call it from your program.
 
 [karmenloop.com](https://karmenloop.com) · [Download](https://karmenloop.com/download.html) · [CLI source](https://github.com/KarmenLoop/koder-cli) · [info@karmenloop.com](mailto:info@karmenloop.com)
 
@@ -12,7 +12,7 @@ Download · [Quick start](#quick-start) · [Model](#3-connect-a-model) · [Chat 
 
 ## What Koder is
 
-Koder is one product with three places to stand and one way to call it from code.
+Koder has a desktop app, a CLI, and a full-screen TUI. This repository is the SDK for applications that need to call it.
 
 | You want | Open |
 | --- | --- |
@@ -23,15 +23,11 @@ Koder is one product with three places to stand and one way to call it from code
 
 They share the model you configure and the language you pick. Set it once.
 
-The desktop app, the TUI, and the CLI are the product people install. This repository is the SDK: the same run, called from your program. The kernel underneath, KARMEN LOOP, stays on our side.
+The SDK calls the same CLI runtime. The KARMEN LOOP kernel is proprietary and distributed separately; it is not included in this repository.
 
 ## The brand
 
-KARMEN is the name on the work. Koder is the product you install and talk to. KARMEN LOOP is the kernel those installers run.
-
-We publish the CLI source and this SDK. We do not publish the kernel. Copyright © KARMEN / Koder. All rights reserved on the kernel. If you need the product, install it. If you need to call it, use the SDK. If you need the kernel source, that is not on offer here.
-
-Site: [karmenloop.com](https://karmenloop.com). Mail: [info@karmenloop.com](mailto:info@karmenloop.com).
+KARMEN is the brand, Koder is the assistant, and KARMEN LOOP is the kernel. The CLI source and SDK are published in separate repositories under their own licenses. See [License](#license) for the terms that apply here.
 
 ## What it can do
 
@@ -73,7 +69,7 @@ Those two edit shots were taken against a scripted local endpoint, not a live mo
 
 ## Quick start
 
-Do these in order. Stop at the first step that fails and fix that one. Skipping ahead is how people end up with a model that "works" and a product that never answers.
+Install the CLI, connect a model, and check that a request succeeds before setting up the SDK. If a step fails, fix it before moving on.
 
 You need a terminal, a network connection for the installer and for whatever model you pick, and a folder you are allowed to edit. macOS 11 or later, a current Linux, WSL, or Windows 10 or 11. Windows 7 and 8 cannot run it. Node.js 22 is the floor. The installer downloads Node.js 22 from nodejs.org when it is missing, checks the SHA-256, then unpacks it. The Koder package is checked the same way. No admin account. No invite code.
 
@@ -405,7 +401,7 @@ Paste the printed config into that editor's settings, reload the editor, and ope
 
 ### 9. Call Koder from your own code
 
-Do this last. The CLI model test should already succeed. The SDK drives that same CLI.
+Once the CLI can reach your model, you can call it through the SDK.
 
 This repository is the SDK. Node.js 22.13 or newer. Python 3.9 or newer only if you want Python.
 
