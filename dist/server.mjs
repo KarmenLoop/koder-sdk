@@ -3,24 +3,24 @@
 // stdout carries protocol frames only; anything else goes to stderr.
 import readline from "node:readline";
 import { format } from "node:util";
-                                                                                                     
+
 import { KoderSdkError } from "./errors.mjs";
 import {                           createKoder } from "./koder.mjs";
 
 export const PROTOCOL_VERSION = 1;
-export const SDK_VERSION = "0.1.0";
+export const SDK_VERSION = "0.1.1";
 
-                                
-                                                                                 
 
-                    
-                                
-                                 
-                              
- 
+
+
+
+
+
+
+
 
 // "client" means: ask the bridge client for every decision.
-                                                                 
+
 
 export function startServer({ input = process.stdin, output = process.stdout, log = process.stderr }           = {})                {
   const koders = new Map                                                         ();

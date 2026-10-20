@@ -1,7 +1,7 @@
 // Generated from src/run.ts by scripts/build.mjs. Edit the .ts source.
-                                                           
 
-                                        
+
+
 
 // One agent turn. Iterate it for live events, or await it for the final result.
 // The event log is kept for the whole turn, so late or multiple readers see every event.

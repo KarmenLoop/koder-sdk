@@ -204,6 +204,9 @@ class Koder:
             params["permission"] = _wire_permission(permission)
         if provider is not None:
             params.update(provider="client", providerName=getattr(provider, "name", None) or "python", providerModel=getattr(provider, "model", None) or "python")
+            context_window = getattr(provider, "context_window", None)
+            if context_window is not None:
+                params["contextWindow"] = context_window
         try:
             info = await self._bridge.call("koder.create", params)
         except BaseException:

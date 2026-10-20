@@ -7,7 +7,7 @@ import { KoderSdkError } from "./errors.ts";
 import { type Koder, type Session, createKoder } from "./koder.ts";
 
 export const PROTOCOL_VERSION = 1;
-export const SDK_VERSION = "0.1.0";
+export const SDK_VERSION = "0.1.1";
 
 type Json = Record<string, any>;
 type Handler = (params: Json, id: number | string) => Promise<unknown> | unknown;
