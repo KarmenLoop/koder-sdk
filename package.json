@@ -1,7 +1,7 @@
 {
   "name": "koder-sdk",
-  "version": "0.1.0",
-  "description": "Call Koder from TypeScript, JavaScript or Python. The KARMEN LOOP kernel is not in this repository.",
+  "version": "0.1.1",
+  "description": "Use Koder from JavaScript, TypeScript, or Python, with streaming sessions and approval controls.",
   "type": "module",
   "license": "MIT",
   "main": "./dist/index.mjs",
@@ -16,7 +16,13 @@
   "bin": {
     "koder-sdk-server": "bin/koder-sdk-server.mjs"
   },
-  "files": ["bin", "dist", "src", "index.d.ts", "README.md"],
+  "files": [
+    "bin",
+    "dist",
+    "src",
+    "index.d.ts",
+    "README.md"
+  ],
   "engines": {
     "node": ">=22.13"
   },
@@ -24,6 +30,11 @@
     "build": "node scripts/build.mjs",
     "test": "node scripts/build.mjs && node --test --test-timeout=60000 test/*.test.mjs",
     "test:python": "node scripts/build.mjs && cd python && python3 -m unittest discover -s tests -v",
-    "typecheck": "tsc -p ."
+    "typecheck": "tsc -p .",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "@types/node": "22.18.12"
   }
 }

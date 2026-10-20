@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 .DS_Store
 kernel/
+node_modules/
+python/build/
+python/*.egg-info/

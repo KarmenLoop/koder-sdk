@@ -1,32 +1,37 @@
 // Generated from src/koder.ts by scripts/build.mjs. Edit the .ts source.
 import fs from "node:fs";
 import path from "node:path";
-                                                                                                                                                                                                             
+
 import {                 loadCli } from "./cli.mjs";
 import { KoderSdkError, fromCliError } from "./errors.mjs";
 import {                                            resolvePermission, toDecision, toRequest } from "./permission.mjs";
 import { Run } from "./run.mjs";
 
-                                              
-                                                                         
-                                                                                         
 
-               
-                 
-               
-           
-                    
-               
-                 
-                                                 
-               
-                   
-                    
-                                       
- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const REASONS                               = { "turn.cancelled": "cancelled", "turn.secretCancelled": "login_refused", "turn.tooMany": "too_many_pauses" };
 const KIND = { change: "edit", approval: "command", choice: "question", secret: "login" }         ;
+
+// Fetch callbacks can update this state while runPrompt is awaited.
+function diagnosticFailure(diag             ) {
+  return diag.state.last;
+}
 
 function checkWorkspace(value                    )         {
   const workspace = path.resolve(value || process.cwd());
@@ -42,6 +47,9 @@ function checkWorkspace(value                    )         {
 function chooseModel(cli           , { model, provider, env }                                                                       ) {
   if (provider) {
     if (typeof provider.complete !== "function") throw new KoderSdkError("BAD_PROVIDER", "provider must have a complete() method");
+    if (provider.contextWindow !== undefined && (!Number.isSafeInteger(provider.contextWindow) || provider.contextWindow < 2048)) {
+      throw new KoderSdkError("BAD_PROVIDER", "provider.contextWindow must be an integer of at least 2048 tokens");
+    }
     return { record: null, override: provider, info: { name: provider.name || provider.model || "custom", model: provider.model || "", source: "provider" } };
   }
   let found                                                             = null;
@@ -73,6 +81,13 @@ export async function createKoder(options               = {})                 {
     const chosen = chooseModel(cli, { model: options.model, provider: options.provider, env });
     const diag = cli.diagnosticFetch(options.fetch || globalThis.fetch);
     const harness = await cli.openAgent({ workspace, record: chosen.record, providerOverride: chosen.override, fetchImpl: diag.fetch, contextRatio: options.contextRatio ?? 0.75, env });
+    if (chosen.override?.contextWindow !== undefined) {
+      // The harness reads its context budget from the selected provider record,
+      // including when complete() is supplied by the SDK caller.
+      const id = "sdk-custom-provider";
+      await harness.store.saveProviders([{ id, name: chosen.info.name, model: chosen.info.model, contextWindow: chosen.override.contextWindow }]);
+      await harness.store.saveSettings({ providerId: id });
+    }
     const { unifiedDiff } = await cli.importKernel(path.join("harness", "diff.mjs"), env);
     const watch = cli.watcher(harness);
     return new Koder({ cli, t, env, workspace, harness, watch, diag, diff: unifiedDiff, model: chosen.info, defaultMode, defaultPermission });
@@ -285,7 +300,7 @@ export class Session {
         }
         const current = outcome.thread || ctx.harness.store.getThread(thread.id) || thread;
         const unreachable = ctx.cli.unreachable(current);
-        const last = ctx.diag.state.last;
+        const last = diagnosticFailure(ctx.diag);
         const status                      = aborted ? "cancelled" : unreachable ? "unreachable" : outcome.cancelled ? "cancelled" : current.status === "error" ? "error" : "completed";
         let error                     = null;
         if (unreachable) {

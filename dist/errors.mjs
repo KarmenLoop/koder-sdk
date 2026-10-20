@@ -1,5 +1,5 @@
 // Generated from src/errors.ts by scripts/build.mjs. Edit the .ts source.
-                                                                         
+
 
 // Every SDK failure has a stable `code` callers can branch on; `message` is human text.
 export class KoderSdkError extends Error {

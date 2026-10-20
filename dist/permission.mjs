@@ -1,24 +1,24 @@
 // Generated from src/permission.ts by scripts/build.mjs. Edit the .ts source.
-                                                                                                              
+
 import { KoderSdkError } from "./errors.mjs";
 
-                        
-                                                    
-             
-                
-                  
-                 
-                   
-                    
-                     
-                   
-                  
- 
 
-                                                                                     
 
-                                                                                
-                                                                  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Presets mirror the CLI: nothing is written or run unless the caller says so,
 // and no preset ever answers a question on the user's behalf.

@@ -2,32 +2,33 @@
 // The only file that reaches into koder-cli. The SDK shares its engine wrapper,
 // model configuration and event format, so SDK runs behave like `koder --json`.
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { KoderSdkError } from "./errors.mjs";
 
-                                              
-                                  
 
-                            
-               
-                                                          
-                
-                 
-              
-                                                                                                                                                                     
-                                                                
-                                            
-                                            
-                                                                        
-                                                                                                                         
-                                                                             
-                                                                
-                                                                                      
-                                                   
-                                                                 
-                  
- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const MARKER = path.join("src", "agent.mjs");
@@ -35,7 +36,12 @@ const MARKER = path.join("src", "agent.mjs");
 // An explicit location is never silently replaced by a fallback copy.
 export function findCliRoot({ cliRoot, env = process.env }                                  = {})         {
   const explicit = cliRoot || env.KODER_CLI_ROOT;
-  const candidates = explicit ? [explicit] : [path.resolve(here, "..", "..", "koder-cli"), path.resolve(here, "..", "vendor", "koder-cli")];
+  const home = env.HOME || env.USERPROFILE || os.homedir();
+  const candidates = explicit ? [explicit] : [
+    path.join(home, ".koder-cli", "current"),
+    path.resolve(here, "..", "..", "koder-cli"),
+    path.resolve(here, "..", "vendor", "koder-cli"),
+  ];
   for (const candidate of candidates) {
     const root = path.resolve(candidate);
     if (fs.existsSync(path.join(root, MARKER))) return root;

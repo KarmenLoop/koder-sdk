@@ -28,6 +28,7 @@ class Scripted:
 
     name = "scripted"
     model = "scripted"
+    context_window = 64_000
 
     def __init__(self, steps):
         self.steps = steps

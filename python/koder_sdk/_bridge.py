@@ -15,7 +15,8 @@ from .types import KoderSdkError
 PROTOCOL_VERSION = 1
 # Frames can carry whole files; asyncio's default 64 KiB line limit is too small.
 LINE_LIMIT = 64 * 1024 * 1024
-DEFAULT_SERVER = Path(__file__).resolve().parents[2] / "bin" / "koder-sdk-server.mjs"
+BUNDLED_SERVER = Path(__file__).resolve().parent / "_node" / "bin" / "koder-sdk-server.mjs"
+DEFAULT_SERVER = BUNDLED_SERVER if BUNDLED_SERVER.is_file() else Path(__file__).resolve().parents[2] / "bin" / "koder-sdk-server.mjs"
 
 RequestHandler = Callable[[str, Dict[str, Any]], Awaitable[Any]]
 
