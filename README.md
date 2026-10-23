@@ -1,5 +1,7 @@
 # Koder SDK
 
+English | [简体中文](README.zh-CN.md)
+
 Use Koder from JavaScript, TypeScript, or Python. Open a session in a workspace, stream the result, and decide which edits and commands to allow.
 
 The SDK uses your installed Koder CLI and its runtime. This repository contains the MIT-licensed SDK and Python bridge; the KARMEN LOOP kernel is distributed separately under its own terms.
