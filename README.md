@@ -1,46 +1,111 @@
 # Koder SDK
 
-English | [简体中文](README.zh-CN.md)
+[English](README.md) · [中文](README.zh-CN.md) · **v0.1.1**
 
-Use Koder from JavaScript, TypeScript, or Python. Open a session in a workspace, stream the result, and decide which edits and commands to allow.
+[![Node 22.13+](https://img.shields.io/badge/node-22.13%2B-brightgreen)](https://nodejs.org/)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Status: local SDK](https://img.shields.io/badge/status-local%20SDK-64748b)](#is--is-not)
 
-The SDK uses your installed Koder CLI and its runtime. This repository contains the MIT-licensed SDK and Python bridge; the KARMEN LOOP kernel is distributed separately under its own terms.
+**Call Koder from JavaScript, TypeScript, or Python: open a session in a workspace, stream events, and decide which edits and commands to allow.**
+
+The SDK drives your **installed** [Koder CLI](https://github.com/KarmenLoop/koder-cli) and its runtime. This repository is the MIT-licensed client plus a Python ↔ Node bridge. The KARMEN LOOP / Koder **kernel** is distributed separately and is not published here.
+
+Built and maintained by [KarmenLoop](https://github.com/KarmenLoop) / [KARMENLOOP](https://karmenloop.com). Current package version: **0.1.1** (`package.json` / `python/pyproject.toml`). License: **MIT**.
+
+[Tutorial (EN)](docs/tutorial.en.md) · [中文教程](docs/tutorial.zh-CN.md) · [CHANGELOG](CHANGELOG.md) · [CLI download](https://karmenloop.com/en/download.html) · [koder-cli](https://github.com/KarmenLoop/koder-cli)
+
+---
+
+## Why this exists
+
+Terminal and TUI entry points are enough for interactive use. Embedding the same approve-before-write loop inside apps, tests, and automation needs a stable session API with streaming and permission hooks—without re-implementing the runtime.
+
+Koder SDK is that client surface:
+
+- one workspace session API across JS/TS and Python;
+- streaming deltas and tool results;
+- deny-by-default permissions with presets or custom handlers;
+- optional in-process custom providers for tests and gateways.
+
+It does **not** ship a model, create cloud accounts, or replace the CLI installer.
+
+---
+
+## Snapshot
+
+| | |
+|---|---|
+| **What you install** | This repo’s JS/TS package (`dist/`) and optional Python package (`python/`) |
+| **Version** | **0.1.1** |
+| **JS runtime** | Node.js **≥ 22.13** (build uses Node’s type stripper) |
+| **Python** | **≥ 3.9**; still starts a Node bridge process |
+| **Peer runtime** | Compatible Koder CLI + kernel (see CLI discovery below) |
+| **Default discovery** | `KODER_CLI_ROOT` / `cliRoot` / `cli_root` → else `~/.koder-cli/current` → adjacent/vendored checkout |
+| **Package managers** | **From this checkout:** `npm ci` + `npm run build`; Python `python3 -m pip install ./python` after build. **Not** claimed as a published npmjs.com / PyPI release in this draft |
+| **License** | MIT (SDK only; kernel terms separate) |
+
+---
+
+## Is / Is not
+
+| Is | Is not |
+|---|---|
+| Local client library for Koder sessions (JS/TS + Python) | A hosted API or SaaS endpoint |
+| Streaming runs with permission presets / handlers | Automatic approval of edits and commands (default is `deny`) |
+| Bridge that uses your installed CLI + kernel | A substitute for installing [koder-cli](https://github.com/KarmenLoop/koder-cli) |
+| Custom in-process providers for tests / gateways | Proof that a paid model account is configured |
+| MIT-licensed SDK sources and examples | Kernel source or model weights |
+
+---
 
 ## Requirements
 
-- Node.js 22.13 or later. Building the TypeScript source uses Node's built-in type stripper.
-- A compatible Koder CLI installation with its runtime. The SDK first checks `~/.koder-cli/current`, then an adjacent or vendored CLI checkout.
-- Python 3.9 or later for the Python client. Python still starts a Node bridge process.
-- A model configured in Koder, explicit model settings, or your own provider implementation.
+1. **Node.js 22.13+**
+2. **Koder CLI** with a compatible runtime ([download](https://karmenloop.com/en/download.html)). A CLI source tree without the separately distributed runtime cannot execute agent tasks.
+3. **Python 3.9+** only if you use the Python client.
+4. A model via Koder config, `KODER_MODEL` / `KODER_BASE_URL` / `KODER_API_KEY`, explicit `model: { … }`, or a custom `provider`.
 
-Set `KODER_CLI_ROOT` or pass `cliRoot` in JavaScript / `cli_root` in Python to choose a specific CLI installation. An invalid explicit path is reported rather than silently replaced by another copy.
+Invalid explicit `cliRoot` / `cli_root` / `KODER_CLI_ROOT` is reported—never silently replaced.
 
-Get the CLI from the [official download page](https://karmenloop.com/en/download.html). A source checkout without its separately distributed runtime cannot execute agent tasks.
+---
 
-## Try it locally
+## Quick start (from this repository)
 
 ```sh
 git clone https://github.com/KarmenLoop/koder-sdk.git
 cd koder-sdk
+npm ci
 npm run build
 node examples/custom-provider.mjs
 ```
 
-The example uses an in-process provider, writes `hello.txt` in a temporary workspace through the real execution runtime, reads it back, and cleans up. It makes no model API request. It still requires the CLI and kernel.
+The custom-provider example uses an in-process provider, writes `hello.txt` through the real execution runtime in a temporary workspace, reads it back, and cleans up. It makes **no** model API request. It still needs the CLI and kernel.
 
-For Python:
+**Python** (build JS first so the wheel/bridge is generated):
 
 ```sh
 python3 -m pip install ./python
 python3 python/examples/custom_provider.py
 ```
 
-Run `npm run build` before building a Python distribution. The wheel includes the generated Node bridge, so it can run after the source checkout has been moved or removed. Node and the Koder CLI remain separate requirements. `KODER_NODE` and `KODER_SDK_SERVER` override the Node executable and bridge path when needed.
+Overrides when needed: `KODER_NODE`, `KODER_SDK_SERVER`.
 
-## JavaScript and TypeScript
+Real-model quickstart (after `koder model add` or env vars):
+
+```sh
+node examples/quickstart.mjs /path/to/project "Explain what this project does"
+```
+
+Full walkthrough: [docs/tutorial.en.md](docs/tutorial.en.md).
+
+---
+
+## JavaScript / TypeScript
 
 ```js
 import { createKoder } from "./dist/index.mjs";
+// After packaging from this checkout you may import "koder-sdk" instead.
 
 const koder = await createKoder({
   workspace: process.cwd(),
@@ -60,9 +125,13 @@ try {
 }
 ```
 
-The default model comes from Koder's configuration or `KODER_MODEL`, `KODER_BASE_URL`, and `KODER_API_KEY`. To supply one directly, pass `model: { model, baseUrl, apiKey }`. Keep keys in your environment or credential store rather than source files.
+- Default model: Koder config or `KODER_MODEL`, `KODER_BASE_URL`, `KODER_API_KEY`.
+- Direct model: `model: { model, baseUrl, apiKey }` — keep keys in env / credential stores.
+- Single turn: `query({ workspace, prompt, … })`.
+- Multi-turn: reuse `session`, await each `send`, `session.reset()` for a new conversation; `session.messages` is recorded history (provider sees what fits its context budget).
+- Types: [`index.d.ts`](index.d.ts). Examples: [`examples/typescript.ts`](examples/typescript.ts).
 
-`query({ workspace, prompt, ...options })` is the single-turn form. Reuse a session for related turns, await each send, and call `session.reset()` when you want a new conversation. `session.messages` exposes the recorded history. The provider receives the portion that fits its configured context budget.
+---
 
 ## Python
 
@@ -79,29 +148,35 @@ async def main():
 asyncio.run(main())
 ```
 
-Python options use snake case, including `read_only`, `cli_root`, and model fields such as `base_url` and `api_key`. A run can be awaited or iterated with `async for`. `query_sync` is available for synchronous callers; use the async client inside an existing event loop.
+Snake case options: `read_only`, `cli_root`, `base_url`, `api_key`. Iterate a run with `async for`, or use `query_sync` outside an existing event loop.
+
+---
 
 ## Approvals and cancellation
 
-Edits and commands are denied by default. Choose a preset or provide a handler that examines each request:
+Edits and commands default to **denied**. Choose a preset or a handler:
 
 | Preset | Edits | Commands | Questions |
-| --- | --- | --- | --- |
+|---|---|---|---|
 | `deny` | Denied | Denied | Cancelled |
 | `acceptEdits` | Allowed | Denied | Cancelled |
 | `auto` | Allowed | Allowed | Cancelled |
 
-An edit request contains the path, before and after text, and diff. A command request contains the proposed command. A question needs an actual option answer; a preset does not answer for the user. Login requests are refused by the SDK.
+Handlers receive edit (path, before/after, diff), command (proposed line), or question (options). Presets never answer questions for you. Login requests are always refused by the SDK.
 
-Use `run.cancel()` or a JavaScript `AbortSignal` to stop a turn. Cancellation stops further work and leaves already accepted changes on disk. A session rejects an overlapping send with `BUSY`; a closed client rejects new work with `CLOSED`.
+Stop a turn with `run.cancel()` or a JS `AbortSignal`. Cancellation stops further work; already accepted disk changes remain. Overlapping `send` on one session → `BUSY`. Closed client → `CLOSED`.
+
+---
 
 ## Custom providers
 
-In JavaScript, implement `complete({ messages, tools, signal })` and return `{ text, toolCalls }`. Set `contextWindow` to the model's actual capacity, in tokens. It must be an integer of at least 2048. The SDK uses this value for the runtime's context budget.
+**JavaScript:** implement `complete({ messages, tools, signal })` → `{ text, toolCalls }`. Set `contextWindow` to a real token capacity (integer ≥ 2048).
 
-In Python, implement `complete(messages, tools)` and return `{ "text": ..., "tool_calls": [...] }`. Set `context_window` on the provider object to pass the same capacity through the bridge. Omitting the capacity retains the runtime's conservative default, which can trim earlier turns.
+**Python:** implement `complete(messages, tools)` → `{ "text": …, "tool_calls": […] }` and `context_window` on the provider object.
 
-See [the JavaScript example](examples/custom-provider.mjs), [the Python example](python/examples/custom_provider.py), and [the TypeScript example](examples/typescript.ts). Examples use synthetic data; they do not prove that a hosted model is configured or reachable.
+See [examples/custom-provider.mjs](examples/custom-provider.mjs), [python/examples/custom_provider.py](python/examples/custom_provider.py), [examples/typescript.ts](examples/typescript.ts). Synthetic examples do **not** prove a hosted model is reachable.
+
+---
 
 ## Development and packaging
 
@@ -112,9 +187,9 @@ npm test
 npm run test:python
 ```
 
-The full JavaScript and Python suites require a compatible local CLI runtime. Automated interface checks build the SDK, type-check it, test CLI discovery, and inspect the npm package. They do not claim a live model round trip.
+Full suites need a compatible local CLI runtime. Interface checks build, typecheck, probe CLI discovery, and inspect the npm package layout—they do not claim a live model round-trip.
 
-To test a Python wheel outside the checkout:
+Python wheel outside the checkout:
 
 ```sh
 npm run build
@@ -122,10 +197,56 @@ python3 -m pip wheel --no-deps ./python --wheel-dir wheelhouse
 python3 scripts/test-python-wheel.py wheelhouse/koder_sdk-0.1.1-py3-none-any.whl
 ```
 
-The wheel check starts its bundled bridge, performs an approved file write in a temporary workspace, and verifies a second turn can recall the first. It uses a local provider and makes no paid API request.
+The wheel check starts its bundled bridge, performs an approved write in a temp workspace, and verifies a second turn can recall the first—local provider, no paid API.
+
+Upgrade: rebuild, reinstall the Python path/wheel, and read [CHANGELOG.md](CHANGELOG.md). The SDK does not manage your workspace or model credentials for you.
+
+---
+
+## Documentation map
+
+| Doc | Use it when you need… |
+|---|---|
+| [Tutorial EN](docs/tutorial.en.md) · [中文](docs/tutorial.zh-CN.md) | Install → first client call → streaming → update |
+| [README](README.md) | API snapshots and permission table |
+| [CHANGELOG](CHANGELOG.md) | 0.1.1 notes |
+| [index.d.ts](index.d.ts) | TypeScript surface |
+| `docs/screenshots/` | Visual captures only (not a prose guide) |
+
+---
+
+## FAQ
+
+### What is Koder SDK, in one sentence?
+
+A local JS/TS/Python client that opens Koder sessions against your installed CLI runtime, streams results, and lets you approve edits and commands.
+
+### Do I need karmenbot?
+
+No. The SDK talks to **Koder CLI** / kernel. [karmenbot](https://github.com/KarmenLoop/karmenbot) is a separate full-screen assistant in the same product family.
+
+### Is this on npm or PyPI?
+
+This draft documents **install-from-checkout** (`npm ci` / `npm run build`, `pip install ./python`). Do not assume a registry package exists until a release explicitly says so.
+
+### What is the default permission?
+
+`deny` — edits and commands rejected until you choose `acceptEdits`, `auto`, or a custom handler.
+
+### Soft discoverability
+
+Phrases that match this repo: **Koder JavaScript TypeScript Python SDK**, **streaming coding agent session API**, **approve before edit permission handler**, **custom provider contextWindow bridge**, **local Koder CLI client library**. Substance lives in the API and examples—not keyword density.
+
+---
 
 ## License and support
 
-The SDK is [MIT licensed](LICENSE). That license does not cover the separately distributed KARMEN LOOP kernel, model services, or other repositories.
+[MIT](LICENSE) for this SDK. It does not cover the separately distributed kernel, model services, or other repositories.
 
-Report reproducible SDK issues in [GitHub Issues](https://github.com/KarmenLoop/koder-sdk/issues), with the Node/Python versions and a sanitized example. Do not include API keys or private workspace content. Product information is at [karmenloop.com](https://karmenloop.com).
+Issues: [GitHub Issues](https://github.com/KarmenLoop/koder-sdk/issues) — include Node/Python versions and a sanitized repro. Never paste API keys or private workspace files.
+
+Maintainer: [KarmenLoop](https://github.com/KarmenLoop) · Site: [karmenloop.com](https://karmenloop.com)
+
+Related: [koder-cli](https://github.com/KarmenLoop/koder-cli) · [koder-tui](https://github.com/KarmenLoop/koder-tui) · [karmenbot](https://github.com/KarmenLoop/karmenbot) · [karmen-memory](https://github.com/KarmenLoop/karmen-memory) · [org home](https://github.com/KarmenLoop/KarmenLoop)
+
+Copyright 2026 KarmenLoop.
